@@ -1,4 +1,7 @@
 class ArticlesController < ApplicationController
+
+  http_basic_authenticate_with name: "dhh", password: "secret", except: [:index, :show]
+
   def index
     @articles = Article.all
   end
@@ -16,8 +19,11 @@ class ArticlesController < ApplicationController
 
     if @article.save
       redirect_to @article
+      # utilizano quando uma atualização no banco é feita, caso contrário se a página for atualizada
+      # o navegador fará a mesma requisição e a mutação será repetida 
     else
       render :new
+      # diferente do 'redirect_to', esse irá renderizar a view especificada
     end
   end
 
@@ -35,8 +41,15 @@ class ArticlesController < ApplicationController
     end
   end
 
+  def destroy
+    @article = Article.find(params[:id])
+    @article.destroy
+
+    redirect_to root_path
+  end
+
   private
     def article_params
-      params.require(:article).permit(:title, :body)
+      params.require(:article).permit(:title, :body, :status)
     end
 end
